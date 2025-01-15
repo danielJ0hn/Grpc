@@ -44,16 +44,67 @@ GRPC uses .proto file for communication protocols. It will contain the request t
     ```
     - message has a name ```ModelName```
     - In the body specify the type, name and the order in which the property will appear, for each property in the format ```TypeOfProperty NameOfProperty = OrderOfProperty```.
+1. **Stream** to return a stream of items. To stream the the arrray of data, we specify:
+```cs
+rpc ProcedureName (RequestModelName) returns (stream ReplyModelName);
+```
 
 ## GRPC Server
 
 ### Adding services
+
+1. In ```.csproj``` add the section
+    ```cs
+    <ItemGroup>
+        <Protobuf Include="..\pathToProtoFile\fileName.proto" GrpcServices="Server" />
+    </ItemGroup>
+    ```
 1. Create a class with the name of the endpoint ```EndpointService``` and implement the base class from proto file ```ServiceName.ServiceNameBase```
 1. Create constructor and inject dependencies if any.
-1. Use
-```cs
-public override Task<ReplyModelName> ProcedureName(RequestModelName request, ServerCallContext context)
-{
-    return Task.FromResult(response);
-}
-```
+1. Use below method structure for overriding a method
+    ```cs
+    public override Task<ReplyModelName> ProcedureName(RequestModelName request, ServerCallContext context)
+    {
+        return Task.FromResult(response);
+    }
+    ```
+1. If using a stream, write to a stream like this:
+    ```cs
+    await responseStream.WriteAsync(eachItem);
+    ```
+
+1. Add the grpc service to the middleware to the ```program.cs``` file.
+    ```cs
+    app.MapGrpcService<EndpointService>();
+    ```
+
+## GRPC Client
+1. In ```.csproj``` add the section
+    ```cs
+    <ItemGroup>
+        <Protobuf Include="..\pathToProtoFile\fileName.proto" GrpcServices="Client" />
+    </ItemGroup>
+    ```
+1. Connect to the grpc channel using the following line
+    ```cs
+    var channel = GrpcChannel.ForAddress("https://address");
+    ```
+1. Create client using
+    ```cs
+    var client = new ServiceName.ServiceNameClient(channel);
+    ```
+1. Call the remote procedure
+    ```cs
+    var reply = await client.ProcedureName(request)
+    ```
+1. For stream of data use
+    ```cs
+    using (var call = client.ProcedureName(parameter))
+    {
+        while (await call.ResponseStream.MoveNext())
+        {
+            var current = call.ResponseStream.Current;
+            //do operation on current
+        }
+    }
+    ```

@@ -2,7 +2,7 @@
 
 namespace GrpcServer.Services
 {
-    public class CustomerService(ILogger<CustomerService> logger): Customer.CustomerBase
+    public class CustomersService(ILogger<CustomersService> logger): Customer.CustomerBase
     {
         public override Task<CustomerModel> GetCustomerInfo(CustomerLookupModel request, ServerCallContext context)
         {
@@ -22,5 +22,30 @@ namespace GrpcServer.Services
             return Task.FromResult(customer);
         }
 
+        public override async Task GetNewCustomers(NewCustomerRequest request, IServerStreamWriter<CustomerModel> responseStream, ServerCallContext context)
+        {
+            List<CustomerModel> customers = new List<CustomerModel>
+            {
+                new CustomerModel
+                {
+                    FirstName = "abc",
+                    LastName = "def",
+                    EmailAddress = "abcdef@gmail.com",
+                    Age = 100
+                },
+                new CustomerModel
+                {
+                    FirstName = "ghi",
+                    LastName = "jkl",
+                    EmailAddress = "ghijkl@gmail.com",
+                    Age = 100
+                }
+            };
+
+            foreach (var customer in customers)
+            {
+                await responseStream.WriteAsync(customer);
+            }
+        }
     }
 }
