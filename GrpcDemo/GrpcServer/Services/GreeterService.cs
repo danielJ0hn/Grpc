@@ -1,5 +1,4 @@
 using Grpc.Core;
-using GrpcServer;
 
 namespace GrpcServer.Services
 {
@@ -16,6 +15,14 @@ namespace GrpcServer.Services
             return Task.FromResult(new HelloReply
             {
                 Message = "Hello " + request.Name
+            });
+        }
+
+        public override Task<HelloReply> SayHi(NewCustomerRequest request, ServerCallContext context)
+        {
+            return Task.FromResult(new HelloReply
+            {
+                Message = "Hello anonymous"
             });
         }
     }
