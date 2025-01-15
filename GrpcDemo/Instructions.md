@@ -8,8 +8,14 @@ GRPC uses .proto file for communication protocols. It will contain the request t
 
 ## Proto file description
 
-1. **syntax:** mentions the proto schema.
-    - Usage: syntax = "proto3";
+1. **syntax** mentions the proto schema.
+    ```cs
+    syntax = "proto3";
+    ```
+1. **Import** mentions other proto file which is being used in the current file.
+    ```cs
+    import  "another.proto";
+    ```
 1. **csharp_namespace** mentions the namespace of the class generated.
 1. **package** name of the package.
 1. **service** class with procedures in it.
